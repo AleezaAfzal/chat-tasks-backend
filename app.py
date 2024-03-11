@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, request
-#from flask_cors import CORS
+from flask_cors import CORS
 from openai import OpenAI
 
 load_dotenv()
@@ -12,27 +12,35 @@ app = Flask(__name__)
 
 gpt_client = OpenAI(api_key = oai_key)
 
-#CORS (app, origins = [front_url])
+CORS(app, origins = [front_url])
 
 @app.route('/chat', methods = ['POST'])
 def send_message():
     try:
         req = request.get_json()
-        body = req['data']
-        message = str(body['message'])
-        print(message)
+        messages = req['messages']
 
         completion = gpt_client.chat.completions.create(
-            model = 'gpt-3.5-turbo',
+            model = 'gpt-4-vision-preview',
             messages = [
-                { "role" : "user", "content": message }
+                {
+                    'role': str(m['role']),
+                    'content': [
+                        { 'type': 'text', 'text': str(m['content']) },
+                        { 'type': 'image_url', 'image_url': { 'url': str(m['image']), 'detail': 'low' }}
+                    ]
+                } 
+                if 'image' in m.keys() else 
+                {
+                    'role': str(m['role']),
+                    'content': str(m['content'])
+                } 
+                for m in messages
             ],
-            max_tokens = 4
+            max_tokens = 125
         )
 
         reply = str(completion.choices[0].message.content)
-
-        print(reply)
 
         return {'response': reply}, 200
     except Exception as e:
