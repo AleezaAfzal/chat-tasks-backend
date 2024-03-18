@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
 from openai import OpenAI
+from database_helpers import connect
 
 load_dotenv()
 oai_key = os.getenv('OPENAI_API_KEY')
@@ -46,3 +47,28 @@ def send_message():
     except Exception as e:
         print(e)
         return {'error': e}, 500
+    
+@app.route('/save', methods = ['POST'])
+def save_data():
+    try:
+        req = request.get_json()
+        print(req)
+        db = connect()
+
+        collection = db['data']
+        collection.insert_one(req)
+
+        print('inserted to collection:', req)
+        print('> querying collection state')
+
+        items = collection.find()
+
+        for item in items:
+            print(item)
+
+        print('========')
+
+        return {}, 200
+    except Exception as e:
+        print(e)
+        return {'error', e}, 500
