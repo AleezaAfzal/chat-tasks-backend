@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
 from openai import OpenAI
-from database_helpers import connect
+from database_helpers import connect, insert
 
 load_dotenv()
 oai_key = os.getenv('OPENAI_API_KEY')
@@ -43,7 +43,7 @@ def send_message():
 
         reply = str(completion.choices[0].message.content)
 
-        return {'response': reply}, 200
+        return {'response': reply}, 202
     except Exception as e:
         print(e)
         return {'error': e}, 500
@@ -52,23 +52,20 @@ def send_message():
 def save_data():
     try:
         req = request.get_json()
-        print(req)
+        newDataRecord = {
+            '_id': req['participantId'],
+            'messages': req['messages'],
+            'responses': req['responses'],
+            'stepTimestamps': req['stepTimestamps']
+        }
+
         db = connect()
-
         collection = db['data']
-        collection.insert_one(req)
 
-        print('inserted to collection:', req)
-        print('> querying collection state')
+        if insert(newDataRecord, collection) == True:
+            return {'message': 'OK'}, 201
 
-        items = collection.find()
-
-        for item in items:
-            print(item)
-
-        print('========')
-
-        return {}, 200
+        return {'message': 'Record already exists'}, 304
     except Exception as e:
         print(e)
         return {'error', e}, 500
