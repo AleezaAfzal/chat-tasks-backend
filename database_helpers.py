@@ -11,8 +11,10 @@ def connect():
     return client['test_data']
 
 def insert(item, collection):
-    if collection.count_documents({'_id': item['_id']}, limit = 1) == 0:
-        collection.insert_one(item)
-        return True
-
-    return False
+    try:
+        if collection.count_documents({'_id': item['_id']}, limit = 1) == 0:
+            collection.insert_one(item)
+            return True
+        return False
+    except Exception as e:
+        return False

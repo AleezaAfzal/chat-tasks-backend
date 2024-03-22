@@ -55,6 +55,36 @@ For (hopefully obvious) security reasons (i.e. no authentication implementation)
 
 Once you are done with collecting data, you can use the `pymongo` library (included in `requirements.txt`) in a separate script (such as in an Jupyter notebook) to pull the contents of the database.
 
-- TODO: Instructions
+```python
+client = MongoClient(DATABASE_URL)
+db = client[DATABASE_NAME]             
+collection = db[COLLECTION_NAME]
+
+items = collection.find()           # Fetches all items from the specified collection
+```
+
+`items` is be *iterable*, so you will need to iterate through it to access the contents:
+
+```python
+for item in items:
+    print(item)
+```
+
+`items` is also *consumed* when it's iterated upon, so to access its contents again, you will need to either fetch it again:
+
+```python
+items = collection.find()
+```
+
+**OR**, you can clone the contents to a separate variable when you fetch the items the first time:
+
+```python
+items_consumable = collection.find()
+items_to_reuse = items_consumable.clone()
+
+for item in items_to_reuse:
+    # DO STUFF HERE
+    pass
+```
 
 Alternatively, you can use the [mongoexport tool](https://www.mongodb.com/docs/database-tools/mongoexport/) to extract the contents of the database.

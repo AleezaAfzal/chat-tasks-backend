@@ -55,14 +55,14 @@ def save_data():
         newDataRecord = {
             '_id': req['participantId'],
             'messages': req['messages'],
-            'responses': req['responses'],
-            'stepTimestamps': req['stepTimestamps']
+            'tasks': req['tasks'],
         }
 
         db = connect()
         collection = db['data']
-
-        if insert(newDataRecord, collection) == True:
+        
+        insertSuccess = insert(newDataRecord, collection)
+        if insertSuccess == True:
             return {'message': 'OK'}, 201
 
         return {'message': 'Record already exists'}, 304
