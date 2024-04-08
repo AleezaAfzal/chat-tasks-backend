@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
 from openai import OpenAI
-from database_helpers import connect, insert
+from database_helpers import connect, insert, entry_exists
 
 load_dotenv()
 oai_key = os.getenv('OPENAI_API_KEY')
@@ -43,10 +43,9 @@ def send_message():
 
         reply = str(completion.choices[0].message.content)
 
-        return {'response': reply}, 202
+        return {'response': reply}, 200
     except Exception as e:
-        print(e)
-        return {'error': e}, 500
+        return {'error': str(e)}, 500
     
 @app.route('/save', methods = ['POST'])
 def save_data():
@@ -67,5 +66,19 @@ def save_data():
 
         return {'message': 'Record already exists'}, 304
     except Exception as e:
-        print(e)
-        return {'error', e}, 500
+        return {'error': str(e)}, 500
+    
+@app.route('/check_participation', methods = ['POST'])
+def check_participation():
+    try:
+        req = request.get_json()
+        db = connect()
+        collection = db['data']
+
+        pid_exists = entry_exists(str(req['id']), collection)
+        if pid_exists == True:
+            return {'participated': True}, 302
+
+        return {'participated': False}, 204
+    except Exception as e:
+        return {'error': str(e)}, 500

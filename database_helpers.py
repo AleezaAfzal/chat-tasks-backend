@@ -8,13 +8,21 @@ db_collection_name = os.getenv('DATABASE_NAME')
 
 def connect():
     client = MongoClient(db_url)
-    return client['test_data']
+    return client[db_collection_name]
 
 def insert(item, collection):
     try:
-        if collection.count_documents({'_id': item['_id']}, limit = 1) == 0:
+        if entry_exists(item['_id'], collection) == False:
             collection.insert_one(item)
             return True
         return False
     except Exception as e:
         return False
+    
+def entry_exists(pid, collection):
+    try:
+        if collection.count_documents({'_id': pid}, limit = 1) == 0:
+            return False
+        return True
+    except Exception as e:
+        return True
