@@ -8,6 +8,8 @@ from database_helpers import connect, insert, entry_exists
 load_dotenv()
 oai_key = os.getenv('OPENAI_API_KEY')
 front_url = os.getenv('FRONTEND_URL')
+gpt_model = os.getenv('GPT_VERSION')
+token_limit = int(os.getenv('GPT_TOKEN_LIMIT'))
 
 app = Flask(__name__)
 
@@ -22,7 +24,7 @@ def send_message():
         messages = req['messages']
 
         completion = gpt_client.chat.completions.create(
-            model = 'gpt-4-vision-preview',
+            model = str(gpt_model),
             messages = [
                 {
                     'role': str(m['role']),
@@ -38,7 +40,7 @@ def send_message():
                 } 
                 for m in messages
             ],
-            max_tokens = 125
+            max_tokens = token_limit
         )
 
         reply = str(completion.choices[0].message.content)

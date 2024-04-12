@@ -30,10 +30,12 @@ Create your `.env` file:
 touch .env
 ```
 
-Add in the URLs of your frontend and database, your OpenAI API key and the name of the database you wish your data to be stored in:
+Add in the URLs of your frontend and database, your OpenAI API key, GPT parameters and the name of the database you wish your data to be stored in:
 
 ```.env
 OPENAI_API_KEY=api_key_here
+GPT_VERSION=gpt-4-turbo
+GPT_TOKEN_LIMIT=400
 FRONTEND_URL=http://localhost:5173      <-- Should be this by default if you didn't customize the frontend configuration
 DATABASE_URL=mongodb_url_here
 DATABASE_NAME=database_name_here        <-- Name of the database within the mongodb cluster that DATABASE_URL points to
@@ -47,7 +49,7 @@ To run:
 flask run
 ```
 
-...and the server should now be running! Remember to update your frontend's .env file as well 😄
+...and the server should now be running! Remember to update your frontend's .env file as well so that it points to the address of the server! 😄
 
 ### Retrieving Data from the Database
 
