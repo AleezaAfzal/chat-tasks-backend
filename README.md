@@ -1,6 +1,22 @@
-# Chat Tasks (Proxy Server)
+# Chat + Tasks (Proxy Server)
 
-The backend for our online study application. Handles messaging with GPT-4 and saving responses to the database.
+The backend for our online study application. Handles messaging with GPT-4 and saving responses to the database. You can find the participant-facing application [here](https://github.com/aaltoengpsy/chat-tasks-frontend).
+
+- [Running Locally](#running-locally)
+
+  - [Setup](#setup)
+
+  - [Run](#run)
+
+- [Deploying Online](#deploying-online)
+
+- [Retrieving Data from the Database](#retrieving-data-from-the-database)
+
+## Overview
+
+The repository features a Flask server (`app.py`) offering three endpoints: `/chat`, `/save` and `/check_participation`. The first of these is used to communicate with the OpenAI API to complete ChatGPT prompts (including pre-encoded images, if included) entered by participants using the study's frontend. The latter two are offered for checking participation and dumping participation data to an attached MongoDB database.
+
+Participation data is only saved if the supplied participant ID does not already exist in the database. `database_helpers.py` contains helper functions that use the `pymongo` librabry to connect to the database as well as to insert new entries and check for existing entries with a given identifier.
 
 ## Running Locally
 
@@ -35,10 +51,10 @@ Add in the URLs of your frontend and database, your OpenAI API key, GPT paramete
 ```.env
 OPENAI_API_KEY=api_key_here
 GPT_VERSION=gpt-4-turbo
-GPT_TOKEN_LIMIT=400
-FRONTEND_URL=http://localhost:5173      <-- Should be this by default if you didn't customize the frontend configuration
+GPT_TOKEN_LIMIT=1000                     
+FRONTEND_URL=frontend_url_here          # http://localhost:5173 by default
 DATABASE_URL=mongodb_url_here
-DATABASE_NAME=database_name_here        <-- Name of the database within the mongodb cluster that DATABASE_URL points to
+DATABASE_NAME=database_name_here        # Name of the database within the cluster that DATABASE_URL points to
 ```
 
 ### Run
@@ -51,11 +67,15 @@ flask run
 
 ...and the server should now be running! Remember to update your frontend's .env file as well so that it points to the address of the server! 😄
 
-### Retrieving Data from the Database
+## Deploying Online
+
+The repository should be deployable to e.g. [Heroku](https://www.heroku.com/) or [DigitalOcean's App Platform](https://www.digitalocean.com/products/app-platform) directly from GitHub. Create a project, connect your GitHub and select the repository. Remember to set your environment variables ("Config Vars" on Heroku)! Remember to update your frontend deployment's environment variables to point to the address of the deployed server.
+
+## Retrieving Data from the Database
 
 For (hopefully obvious) security reasons (i.e. no authentication implementation), there is no way to fetch the contents of the database using this proxy API.
 
-Once you are done with collecting data, you can use the `pymongo` library (included in `requirements.txt`) in a separate script (such as in an Jupyter notebook) to pull the contents of the database.
+Once you are done collecting data for your study, you can use the `pymongo` library (included in `requirements.txt`) in a separate script (such as in an Jupyter notebook) to pull the contents of the database.
 
 ```python
 client = MongoClient(DATABASE_URL)
