@@ -57,6 +57,7 @@ def save_data():
             '_id': req['participantId'],
             'messages': req['messages'],
             'tasks': req['tasks'],
+            'condition': req['condition']
         }
 
         db = connect()
