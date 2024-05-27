@@ -43,9 +43,9 @@ def send_message():
             max_tokens = token_limit
         )
 
-        reply = str(completion.choices[0].message.content)
+        full_res = completion.model_dump()
 
-        return {'response': reply}, 200
+        return {'response': full_res}, 200
     except Exception as e:
         return {'error': str(e)}, 500
     
