@@ -1,6 +1,7 @@
 testimg.png
 .DS_Store
 *.ipynb
+dump.rdb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

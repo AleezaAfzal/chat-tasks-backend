@@ -59,6 +59,8 @@ PROLIFIC_CODE=prolific_return_code_here # Completion code to be displayed to the
 PROLIFIC_URL=prolific_return_url_here   # Completion url to be displayed to the participant (not necessarily prolific)
 ```
 
+[Install redis](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/) locally; we need this for [queue management](#queue-management).
+
 ### Run
 
 To run:
@@ -68,6 +70,10 @@ flask run
 ```
 
 ...and the server should now be running! Remember to update your frontend's .env file as well so that it points to the address of the server! 😄
+
+## Queue Management
+
+Because GPT calls can take long to process, they should be run as a background job to avoid surpassing the 30-second Heroku dyno timeout. This project uses [RQ](https://python-rq.org/) to queue API calls.
 
 ## Deploying Online
 

@@ -2,22 +2,20 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
-from openai import OpenAI
+from rq import Queue
+from rq.job import Job
 from database_helpers import connect, insert, entry_exists
+from chat_helpers import get_completion
+from worker import conn
 
-load_dotenv()
-oai_key = os.getenv('OPENAI_API_KEY')
 front_url = os.getenv('FRONTEND_URL')
-gpt_model = os.getenv('GPT_VERSION')
-token_limit = int(os.getenv('GPT_TOKEN_LIMIT'))
 prolific_code = os.getenv('PROLIFIC_CODE')
 prolific_url = os.getenv('PROLIFIC_URL')
 
 app = Flask(__name__)
 
-gpt_client = OpenAI(api_key = oai_key)
-
 CORS(app, origins = [front_url])
+q = Queue(connection=conn)
 
 @app.route('/chat', methods = ['POST'])
 def send_message():
@@ -25,32 +23,29 @@ def send_message():
         req = request.get_json()
         messages = req['messages']
 
-        completion = gpt_client.chat.completions.create(
-            model = str(gpt_model),
-            messages = [
-                {
-                    'role': str(m['role']),
-                    'content': [
-                        { 'type': 'text', 'text': str(m['content']) },
-                        { 'type': 'image_url', 'image_url': { 'url': str(m['image']), 'detail': 'low' }}
-                    ]
-                } 
-                if 'image' in m.keys() else 
-                {
-                    'role': str(m['role']),
-                    'content': str(m['content'])
-                } 
-                for m in messages
-            ],
-            max_tokens = token_limit
-        )
+        job = q.enqueue(get_completion, messages)
 
-        full_res = completion.model_dump()
-
-        return {'response': full_res}, 200
+        return {'job_id': job.id}, 202
     except Exception as e:
         return {'error': str(e)}, 500
     
+@app.route('/check_response', methods = ['POST'])
+def check_response():
+    try:
+        req = request.get_json()
+        job_id = req['jobId']
+
+        job = Job.fetch(id = job_id, connection = conn)
+        
+        if job.get_status() == 'finished':
+            return {'response': job.latest_result().return_value}, 200
+        elif job.get_status() in ['finished', 'canceled', 'stopped']:
+            raise InterruptedError('Queue error: task', job.get_status())
+
+        return {'processing': True}, 200
+    except Exception as e:
+        return {'error': str(e)}, 500
+
 @app.route('/save', methods = ['POST'])
 def save_data():
     try:
