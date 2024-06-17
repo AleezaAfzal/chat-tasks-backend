@@ -10,6 +10,8 @@ oai_key = os.getenv('OPENAI_API_KEY')
 front_url = os.getenv('FRONTEND_URL')
 gpt_model = os.getenv('GPT_VERSION')
 token_limit = int(os.getenv('GPT_TOKEN_LIMIT'))
+prolific_code = os.getenv('PROLIFIC_CODE')
+prolific_url = os.getenv('PROLIFIC_URL')
 
 app = Flask(__name__)
 
@@ -65,7 +67,7 @@ def save_data():
         
         insertSuccess = insert(newDataRecord, collection)
         if insertSuccess == True:
-            return {'message': 'OK'}, 201
+            return {'message': 'OK', 'prolificCode': prolific_code, 'prolificUrl': prolific_url}, 201
 
         return {'message': 'Record already exists'}, 304
     except Exception as e:

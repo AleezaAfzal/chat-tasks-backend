@@ -46,7 +46,7 @@ Create your `.env` file:
 touch .env
 ```
 
-Add in the URLs of your frontend and database, your OpenAI API key, GPT parameters and the name of the database you wish your data to be stored in:
+Add in the URLs of your frontend and database, your OpenAI API key, GPT parametersm the name of the database you wish your data to be stored in and the completion code & url for your study.
 
 ```.env
 OPENAI_API_KEY=api_key_here
@@ -55,6 +55,8 @@ GPT_TOKEN_LIMIT=1000
 FRONTEND_URL=frontend_url_here          # http://localhost:5173 by default
 DATABASE_URL=mongodb_url_here
 DATABASE_NAME=database_name_here        # Name of the database within the cluster that DATABASE_URL points to
+PROLIFIC_CODE=prolific_return_code_here # Completion code to be displayed to the participant (not necessarily prolific)
+PROLIFIC_URL=prolific_return_url_here   # Completion url to be displayed to the participant (not necessarily prolific)
 ```
 
 ### Run
