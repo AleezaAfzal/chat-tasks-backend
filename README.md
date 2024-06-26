@@ -27,23 +27,23 @@ Clone or download this repository and navigate to its root folder.
 **(Recommended)** Create a new conda environment with Python and activate it:
 
 ```bash
-conda create -n chat-tasks python
+$ conda create -n chat-tasks python
 
 ...
 
-conda activate chat-tasks
+$ conda activate chat-tasks
 ```
 
 Install the required dependencies:
 
 ```bash
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 Create your `.env` file:
 
 ```bash
-touch .env
+$ touch .env
 ```
 
 Add in the URLs of your frontend and database, your OpenAI API key, GPT parametersm the name of the database you wish your data to be stored in and the completion code & url for your study.
@@ -63,17 +63,34 @@ PROLIFIC_URL=prolific_return_url_here   # Completion url to be displayed to the 
 
 ### Run
 
-To run:
+To run locally, you'll need three terminals. In the first two, navigate to the root of the repository and activate the conda environment.
 
-```
-flask run
+In the first one, start the Flask app:
+```bash
+$ flask run
 ```
 
-...and the server should now be running! Remember to update your frontend's .env file as well so that it points to the address of the server! 😄
+In the second one, start the background worker that is responsible for processing queued chat requests:
+```bash
+$ python worker.py
+```
+
+In the third one, start redis, which is used to store completed chat requests until the client fetches them:
+```bash
+$ redis-server
+```
+
+You're all set! Remember to update your frontend's .env file as well so that it points to the address of the server! 😄
 
 ## Queue Management
 
-Because GPT calls can take long to process, they should be run as a background job to avoid surpassing the 30-second Heroku dyno timeout. This project uses [RQ](https://python-rq.org/) to queue API calls.
+Because GPT calls can take long to process, they should be run as a background job to avoid request timeouts. This project uses [RQ](https://python-rq.org/) to queue API calls.
+
+When the `/chat` API endpoint is called, the fulfillment of the OpenAI API request is moved to a queue and a unique job id is returned to the client. The background worker (in `worker.py`) then executes the query, saves the associated GPT response to the temporary redis database, and marks the job as `finished`.
+
+The client can then check whether the request has been completed by calling the `/check_response` endpoint and including the job id in the request. If the request has been completed, the full chat response will be returned. Otherwise, the field `processing` will be `True` and the client should re-check in a few moments. If the job has been failed for one reason or another, an error will be returned.
+
+Participation checks and participation data saving operations are not processed in the queue, as these should be relatively quick operations.
 
 ## Deploying Online
 
