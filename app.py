@@ -24,8 +24,7 @@ def send_message():
         messages = req['messages']
 
         job = q.enqueue(get_completion, messages)
-
-        return {'job_id': job.id}, 202
+        return {'jobId': job.id}, 202
     except Exception as e:
         return {'error': str(e)}, 500
     
@@ -39,7 +38,7 @@ def check_response():
         
         if job.get_status() == 'finished':
             return {'response': job.latest_result().return_value}, 200
-        elif job.get_status() in ['finished', 'canceled', 'stopped']:
+        elif job.get_status() in ['failed', 'canceled', 'stopped']:
             raise InterruptedError('Queue error: task', job.get_status())
 
         return {'processing': True}, 200
