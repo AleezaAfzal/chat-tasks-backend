@@ -31,8 +31,6 @@ def get_completion(messages):
             max_tokens = token_limit
         )
 
-        print(completion)
-
         full_res = completion.model_dump()
 
         return full_res
