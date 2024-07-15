@@ -119,7 +119,9 @@ When the `/chat` API endpoint is called, the fulfillment of the OpenAI API reque
 
 The client can then check whether the request has been completed by calling the `/check_response` endpoint and including the job id in the request body. If the request has been completed, the full chat response will be returned. Otherwise, the field `processing` will be `True` and the client should re-check in a few moments. If the job has been failed, stopped or canceled for one reason or another, an error will be returned.
 
-> Participation checks and participation data saving operations are not processed in the queue, as these should be relatively quick operations.
+![](./chattasks-rq-seqgraph.png)
+
+> **N.B.** Participation checks and participation data saving operations are not processed in the queue, as these should be relatively quick operations.
 
 ## Retrieving Data from the Database
 
