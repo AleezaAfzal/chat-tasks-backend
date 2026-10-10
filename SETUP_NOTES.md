@@ -261,7 +261,7 @@ Quick check after deployment: the root address shows "Not Found", and `/check_pa
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Console shows `POST .../undefined/check_participation` | Frontend `.env` was not read (wrong location, or no restart) | Put `.env` in the project root and restart `npm run dev` |
+| Console shows `POST .../undefined/check_participation` | Frontend `.env` was not read (wrong location) | Put `.env` in the project root and restart `npm run dev` |
 | "Please enter your Prolific ID" with a short test ID | ID shorter than 16 characters | Use 16+ characters |
 | Everything worked in dev mode but not in normal mode | Dev mode skips the ID check and the first backend call | Test with `VITE_DEV_MODE=false` |
 | `pip install` failures | Python 3.14 had no wheels for the pinned packages | Use Python 3.12 in the virtual environment |
